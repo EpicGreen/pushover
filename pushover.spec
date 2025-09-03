@@ -1,5 +1,5 @@
 Name:           pushover
-Version:        0.1.0
+Version:        0.1.1
 Release:        1%{?dist}
 Summary:        A secure command-line tool for sending Pushover notifications
 
@@ -59,17 +59,8 @@ install -m 644 CHANGELOG.md %{buildroot}%{_docdir}/%{name}/
 %config(noreplace) %{_sysconfdir}/%{name}/config.toml
 %{_datadir}/bash-completion/completions/%{name}
 
-%post
-echo "Pushover has been installed!"
-echo "Configure your credentials in /etc/pushover/config.toml"
-echo "Get your credentials at: https://pushover.net/"
-echo ""
-echo "Example usage:"
-echo "  pushover -t \"Alert\" -m \"Your message here\""
-echo "  pushover -t \"Critical\" -m \"High priority alert\" -p 1"
-
 %changelog
-* Thu Dec 19 2024 Package Maintainer <maintainer@example.com> - 0.1.0-1
+* Wed Sep 3 2025 Ante de Baas <packages@debaas.net> - 0.1.1-1
 - Initial release
 - Pure Rust HTTPS implementation using rustls
 - TOML configuration system
