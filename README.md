@@ -16,6 +16,7 @@ A fast, secure Rust implementation of a command-line tool for sending notificati
 ### RPM Installation (Fedora/RHEL/CentOS)
 
 Install from COPR repository:
+[![Copr build status](https://copr.fedorainfracloud.org/coprs/antedebaas/pushover/package/pushover/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/antedebaas/pushover/package/pushover/)
 
 ```bash
 # Enable COPR repository
