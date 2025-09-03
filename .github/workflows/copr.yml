@@ -95,9 +95,9 @@ jobs:
 
       - name: Submit COPR build
         run: |
-          # Validate required secrets
-          if [ -z "${{ secrets.COPR_PROJECT }}" ]; then
-            echo "Error: COPR_PROJECT secret is not set. Should be in format 'username/projectname'"
+          # Validate required variables and secrets
+          if [ -z "${{ vars.COPR_PROJECT }}" ]; then
+            echo "Error: COPR_PROJECT variable is not set. Should be in format 'username/projectname'"
             exit 1
           fi
 
@@ -114,7 +114,7 @@ jobs:
           fi
 
           # Debug output
-          echo "COPR Project: ${{ secrets.COPR_PROJECT }}"
+          echo "COPR Project: ${{ vars.COPR_PROJECT }}"
           echo "Clone URL: ${{ github.server_url }}/${{ github.repository }}"
           echo "Commit Reference: $COMMIT_REF"
           echo "Spec File: ${{ env.PACKAGE_NAME }}.spec"
@@ -126,7 +126,7 @@ jobs:
           # Submit build to COPR using buildscm (builds directly from git repository)
           # This approach clones the git repo and builds from source, using the spec file in the repo
           echo "Submitting build to COPR..."
-          copr-cli buildscm "${{ secrets.COPR_PROJECT }}" \
+          copr-cli buildscm "${{ vars.COPR_PROJECT }}" \
             --clone-url "${{ github.server_url }}/${{ github.repository }}" \
             --commit "$COMMIT_REF" \
             --spec "${{ env.PACKAGE_NAME }}.spec" \

@@ -290,14 +290,19 @@ The repository includes files for creating distribution packages:
 
 ### COPR Build Configuration
 
-For automated COPR builds via GitHub Actions, the following secrets need to be configured in the repository:
+For automated COPR builds via GitHub Actions, configure the following in your repository:
 
+**Secrets** (Repository Settings → Secrets and variables → Actions → Secrets):
 - `COPR_LOGIN` - Your COPR login token
 - `COPR_USERNAME` - Your COPR username
 - `COPR_TOKEN` - Your COPR API token
+
+**Variables** (Repository Settings → Secrets and variables → Actions → Variables):
 - `COPR_PROJECT` - Your COPR project in format `username/projectname` (e.g., `epicgreen/pushover`)
 
 Get your COPR API credentials from [copr.fedorainfracloud.org](https://copr.fedorainfracloud.org) → API → Token.
+
+**Note**: Use secrets for sensitive authentication data (tokens, passwords) and variables for non-sensitive configuration (project names, URLs).
 
 ## License
 
