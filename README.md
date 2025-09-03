@@ -288,6 +288,17 @@ The repository includes files for creating distribution packages:
 - **Source Tarball**: `make-tarball.sh` - Creates source archives
 - **CI/CD**: `.github/workflows/copr.yml` - Automated COPR builds
 
+### COPR Build Configuration
+
+For automated COPR builds via GitHub Actions, the following secrets need to be configured in the repository:
+
+- `COPR_LOGIN` - Your COPR login token
+- `COPR_USERNAME` - Your COPR username
+- `COPR_TOKEN` - Your COPR API token
+- `COPR_PROJECT` - The name of your COPR project
+
+Get your COPR API credentials from [copr.fedorainfracloud.org](https://copr.fedorainfracloud.org) → API → Token.
+
 ## License
 
 This project is open source. See LICENSE file for details.

@@ -36,11 +36,12 @@ jobs:
 
       - name: Update spec file version
         run: |
+          # Update version in spec file for consistency (COPR will use git content)
           sed -i "s/^Version:.*/Version:        ${{ steps.version.outputs.version }}/" ${{ env.PACKAGE_NAME }}.spec
 
       - name: Create source tarball
         run: |
-          # Update version in make-tarball.sh
+          # Create tarball for artifacts and manual distribution (not used by COPR build)
           sed -i "s/VERSION=.*/VERSION=\"${{ steps.version.outputs.version }}\"/" make-tarball.sh
           ./make-tarball.sh
 
@@ -80,20 +81,20 @@ jobs:
 
       - name: Submit COPR build
         run: |
-          # Create build from uploaded source
-          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.version }}.tar.gz"
+          # Set commit reference based on event type
+          if [ "${{ github.event_name }}" = "release" ]; then
+            COMMIT_REF="${{ github.event.release.tag_name }}"
+          else
+            COMMIT_REF="${{ github.sha }}"
+          fi
 
-          # Update spec file with correct source URL
-          sed -i "s|Source0:.*|Source0: $DOWNLOAD_URL|" ${{ env.PACKAGE_NAME }}.spec
-
-          # Submit build to COPR
-          copr-cli build ${{ secrets.COPR_PROJECT }} \
-            --nowait \
-            ${{ env.PACKAGE_NAME }}.spec \
-            --scm-type git \
-            --scm-url ${{ github.server_url }}/${{ github.repository }} \
-            --scm-subdir . \
-            --scm-spec ${{ env.PACKAGE_NAME }}.spec
+          # Submit build to COPR using buildscm (builds directly from git repository)
+          # This approach clones the git repo and builds from source, using the spec file in the repo
+          copr-cli buildscm ${{ secrets.COPR_PROJECT }} \
+            --clone-url ${{ github.server_url }}/${{ github.repository }} \
+            --commit "$COMMIT_REF" \
+            --spec ${{ env.PACKAGE_NAME }}.spec \
+            --nowait
 
       - name: Comment on PR (if workflow_dispatch)
         if: github.event_name == 'workflow_dispatch'
