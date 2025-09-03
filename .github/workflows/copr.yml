@@ -10,6 +10,9 @@ on:
         required: true
         default: "0.1.0"
 
+permissions:
+  contents: write # Required for uploading release assets
+
 env:
   PACKAGE_NAME: pushover
 
@@ -53,14 +56,25 @@ jobs:
 
       - name: Upload to release (if release event)
         if: github.event_name == 'release'
-        uses: actions/upload-release-asset@v1
+        run: |
+          TARBALL_NAME="${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.version }}.tar.gz"
+
+          # Verify tarball exists
+          if [ ! -f "$TARBALL_NAME" ]; then
+            echo "Error: Tarball $TARBALL_NAME not found"
+            exit 1
+          fi
+
+          echo "Uploading tarball to release ${{ github.event.release.tag_name }}..."
+          if ! gh release upload ${{ github.event.release.tag_name }} \
+            "$TARBALL_NAME" \
+            --clobber; then
+            echo "Failed to upload tarball to release"
+            exit 1
+          fi
+          echo "Tarball successfully uploaded to release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.version }}.tar.gz
-          asset_name: ${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.version }}.tar.gz
-          asset_content_type: application/gzip
 
       - name: Install COPR CLI
         run: |
