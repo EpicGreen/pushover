@@ -1,0 +1,43 @@
+# Pushover Configuration File
+# Place this file at /etc/pushover/config.toml
+#
+# To get your user key and create an application token:
+# 1. Visit https://pushover.net/
+# 2. Log in to your account
+# 3. Your user key is shown on the main page
+# 4. Create a new application at https://pushover.net/apps/build
+# 5. Use the application token from your new app
+
+[pushover]
+# Your Pushover user key (required)
+user = "uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Your Pushover application token (required)
+token = "axxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Default title for notifications (optional)
+# If not specified, will use hostname + "@"
+default_title = "Server Alert"
+
+[notification]
+# Default sound (optional)
+# Available sounds: pushover (default), bike, bugle, cashregister, classical,
+# cosmic, falling, gamelan, incoming, intermission, magic, mechanical,
+# pianobar, siren, spacealarm, tugboat, alien, climb, persistent, echo, updown, none
+# sound = "pushover"
+
+# Default device (optional)
+# If specified, notification will only be sent to this device
+# Use device name as shown in your Pushover dashboard
+# device = "iphone"
+
+# Examples of complete configurations:
+
+# High-priority server alerts:
+# [pushover]
+# user = "uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# token = "axxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# default_title = "PRODUCTION SERVER"
+#
+# [notification]
+# sound = "siren"

@@ -1,0 +1,102 @@
+name: COPR Build
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build"
+        required: true
+        default: "0.1.0"
+
+env:
+  PACKAGE_NAME: pushover
+
+jobs:
+  build-copr:
+    name: Build RPM on COPR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION=${VERSION#v}  # Remove 'v' prefix if present
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Update spec file version
+        run: |
+          sed -i "s/^Version:.*/Version:        ${{ steps.version.outputs.version }}/" ${{ env.PACKAGE_NAME }}.spec
+
+      - name: Create source tarball
+        run: |
+          # Update version in make-tarball.sh
+          sed -i "s/VERSION=.*/VERSION=\"${{ steps.version.outputs.version }}\"/" make-tarball.sh
+          ./make-tarball.sh
+
+      - name: Upload tarball as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.version }}-source
+          path: ${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.version }}.tar.gz
+
+      - name: Upload to release (if release event)
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.version }}.tar.gz
+          asset_name: ${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Install COPR CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip3 install copr-cli
+
+      - name: Configure COPR CLI
+        run: |
+          mkdir -p ~/.config
+          cat > ~/.config/copr << EOF
+          [copr-cli]
+          login = ${{ secrets.COPR_LOGIN }}
+          username = ${{ secrets.COPR_USERNAME }}
+          token = ${{ secrets.COPR_TOKEN }}
+          copr_url = https://copr.fedorainfracloud.org
+          EOF
+
+      - name: Submit COPR build
+        run: |
+          # Create build from uploaded source
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.version }}.tar.gz"
+
+          # Update spec file with correct source URL
+          sed -i "s|Source0:.*|Source0: $DOWNLOAD_URL|" ${{ env.PACKAGE_NAME }}.spec
+
+          # Submit build to COPR
+          copr-cli build ${{ secrets.COPR_PROJECT }} \
+            --nowait \
+            ${{ env.PACKAGE_NAME }}.spec \
+            --scm-type git \
+            --scm-url ${{ github.server_url }}/${{ github.repository }} \
+            --scm-subdir . \
+            --scm-spec ${{ env.PACKAGE_NAME }}.spec
+
+      - name: Comment on PR (if workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "COPR build submitted for version ${{ steps.version.outputs.version }}"
+          echo "Check build status at: https://copr.fedorainfracloud.org/coprs/${{ secrets.COPR_USERNAME }}/${{ secrets.COPR_PROJECT }}/builds/"

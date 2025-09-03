@@ -1,0 +1,10 @@
+[package]
+name = "pushover"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rustls = "0.21"
+webpki-roots = "0.25"
+toml = "0.8"
+serde = { version = "1.0", features = ["derive"] }
