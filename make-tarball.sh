@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Script to create source tarball for RPM packaging
-# This prepares the source for COPR builds
+# This prepares the source for builds
 
 set -e
 
@@ -62,13 +62,13 @@ mv "${TARBALL_NAME}" "${OLDPWD}/"
 rm -rf "${TEMP_DIR}"
 
 print_success "Tarball created: ${TARBALL_NAME}"
-print_info "Ready for COPR upload!"
+print_info "Ready for upload!"
 
 echo ""
-echo "Next steps for COPR:"
+echo "Next steps:"
 echo "1. Upload ${TARBALL_NAME} to your source hosting (GitHub releases, etc.)"
 echo "2. Update the Source0 URL in pushover.spec"
-echo "3. Submit to COPR build system"
+echo "3. Submit to build system"
 echo ""
 echo "For local RPM testing:"
 echo "1. Copy ${TARBALL_NAME} to ~/rpmbuild/SOURCES/"

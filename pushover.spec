@@ -44,38 +44,7 @@ install -d %{buildroot}%{_sysconfdir}/%{name}
 install -D -m 644 etc/%{name}/config.toml %{buildroot}%{_sysconfdir}/%{name}/config.toml
 
 # Install bash completion
-install -D -m 644 /dev/stdin %{buildroot}%{_datadir}/bash-completion/completions/%{name} << 'EOF'
-# Bash completion for pushover
-_pushover() {
-    local cur prev opts
-    COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="-t -m -p -h --help"
-
-    case ${prev} in
-        -t)
-            # No completion for title
-            return 0
-            ;;
-        -m)
-            # No completion for message
-            return 0
-            ;;
-        -p)
-            # Suggest priority values
-            COMPREPLY=( $(compgen -W "-2 -1 0 1 2" -- ${cur}) )
-            return 0
-            ;;
-        *)
-            ;;
-    esac
-
-    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
-    return 0
-}
-complete -F _pushover pushover
-EOF
+install -D -m 644 etc/bash-completion/%{name} %{buildroot}%{_datadir}/bash-completion/completions/%{name}
 
 # Install documentation
 install -d %{buildroot}%{_docdir}/%{name}
@@ -101,7 +70,7 @@ echo "  pushover -t \"Critical\" -m \"High priority alert\" -p 1"
 
 %changelog
 * Thu Dec 19 2024 Package Maintainer <maintainer@example.com> - 0.1.0-1
-- Initial release for COPR
+- Initial release
 - Pure Rust HTTPS implementation using rustls
 - TOML configuration system
 - Command-line priority control (-p flag)

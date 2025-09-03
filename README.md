@@ -50,7 +50,7 @@ cp target/release/pushover ~/.local/bin/
 
 # Create configuration directory
 sudo mkdir -p /etc/pushover
-# OR for user installation  
+# OR for user installation
 mkdir -p ~/.config/pushover
 
 # Copy example configuration
@@ -70,7 +70,7 @@ Create `/etc/pushover/config.toml` (or `~/.config/pushover/config.toml` for user
 # Your Pushover user key (required)
 user = ""
 
-# Your Pushover application token (required)  
+# Your Pushover application token (required)
 token = ""
 
 # Default title for notifications (optional)
@@ -80,7 +80,7 @@ default_title = "Server Alert"
 # Sound (optional)
 sound = "pushover"
 
-# Device (optional) 
+# Device (optional)
 device = "iphone"
 ```
 
@@ -286,11 +286,7 @@ The repository includes files for creating distribution packages:
 
 - **RPM Packaging**: `pushover.spec` - RPM spec file for COPR/Fedora
 - **Source Tarball**: `make-tarball.sh` - Creates source archives
-- **COPR Guide**: `COPR.md` - Detailed COPR packaging instructions
-- **Quick Start**: `COPR-QUICKSTART.md` - Streamlined COPR setup
 - **CI/CD**: `.github/workflows/copr.yml` - Automated COPR builds
-
-For package maintainers, see `COPR-QUICKSTART.md` for the fastest setup path.
 
 ## License
 
@@ -302,4 +298,3 @@ For issues related to:
 - **Pushover service**: Visit [pushover.net/faq](https://pushover.net/faq)
 - **This tool**: Create an issue in the repository
 - **Rust installation**: Visit [rustup.rs](https://rustup.rs/)
-- **RPM packaging**: See `COPR.md` or create a packaging issue

@@ -142,8 +142,7 @@ pushover/
 │       └── config.toml      # Example configuration
 ├── install.sh               # Installation script
 ├── make-tarball.sh          # RPM source tarball generator
-├── pushover.spec            # RPM spec file for COPR
-├── COPR.md                  # COPR packaging instructions
+├── pushover.spec            # RPM spec fil
 ├── Cargo.toml              # Rust dependencies
 ├── README.md               # Comprehensive documentation
 └── CHANGELOG.md            # This file

@@ -91,39 +91,16 @@ setup_completion() {
         mkdir -p "$COMPLETION_DIR"
     fi
 
-    # Create basic bash completion
-    cat > "$COMPLETION_DIR/pushover" << 'EOF'
-# Bash completion for pushover
-_pushover() {
-    local cur prev opts
-    COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="-t -m -p -h --help"
+    # Check if bash completion file exists
+    if [[ ! -f "etc/bash-completion/pushover" ]]; then
+        print_warning "Bash completion file not found at etc/bash-completion/pushover"
+        return 0
+    fi
 
-    case ${prev} in
-        -t)
-            # No completion for title
-            return 0
-            ;;
-        -m)
-            # No completion for message
-            return 0
-            ;;
-        -p)
-            # Suggest priority values
-            COMPREPLY=( $(compgen -W "-2 -1 0 1 2" -- ${cur}) )
-            return 0
-            ;;
-        *)
-            ;;
-    esac
-
-    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
-    return 0
-}
-complete -F _pushover pushover
-EOF
+    # Install bash completion from file
+    print_info "Installing bash completion..."
+    cp etc/bash-completion/pushover "$COMPLETION_DIR/"
+    chmod 644 "$COMPLETION_DIR/pushover"
 
     print_success "Bash completion installed to $COMPLETION_DIR/pushover"
 }
