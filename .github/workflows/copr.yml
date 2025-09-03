@@ -81,6 +81,17 @@ jobs:
 
       - name: Submit COPR build
         run: |
+          # Validate required secrets
+          if [ -z "${{ secrets.COPR_PROJECT }}" ]; then
+            echo "Error: COPR_PROJECT secret is not set. Should be in format 'username/projectname'"
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.COPR_LOGIN }}" ] || [ -z "${{ secrets.COPR_TOKEN }}" ]; then
+            echo "Error: COPR authentication secrets (COPR_LOGIN, COPR_TOKEN) are not set"
+            exit 1
+          fi
+
           # Set commit reference based on event type
           if [ "${{ github.event_name }}" = "release" ]; then
             COMMIT_REF="${{ github.event.release.tag_name }}"
@@ -88,12 +99,23 @@ jobs:
             COMMIT_REF="${{ github.sha }}"
           fi
 
+          # Debug output
+          echo "COPR Project: ${{ secrets.COPR_PROJECT }}"
+          echo "Clone URL: ${{ github.server_url }}/${{ github.repository }}"
+          echo "Commit Reference: $COMMIT_REF"
+          echo "Spec File: ${{ env.PACKAGE_NAME }}.spec"
+
+          # Test COPR authentication first
+          echo "Testing COPR authentication..."
+          copr-cli whoami
+
           # Submit build to COPR using buildscm (builds directly from git repository)
           # This approach clones the git repo and builds from source, using the spec file in the repo
-          copr-cli buildscm ${{ secrets.COPR_PROJECT }} \
-            --clone-url ${{ github.server_url }}/${{ github.repository }} \
+          echo "Submitting build to COPR..."
+          copr-cli buildscm "${{ secrets.COPR_PROJECT }}" \
+            --clone-url "${{ github.server_url }}/${{ github.repository }}" \
             --commit "$COMMIT_REF" \
-            --spec ${{ env.PACKAGE_NAME }}.spec \
+            --spec "${{ env.PACKAGE_NAME }}.spec" \
             --nowait
 
       - name: Comment on PR (if workflow_dispatch)

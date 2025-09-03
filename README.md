@@ -295,7 +295,7 @@ For automated COPR builds via GitHub Actions, the following secrets need to be c
 - `COPR_LOGIN` - Your COPR login token
 - `COPR_USERNAME` - Your COPR username
 - `COPR_TOKEN` - Your COPR API token
-- `COPR_PROJECT` - The name of your COPR project
+- `COPR_PROJECT` - Your COPR project in format `username/projectname` (e.g., `epicgreen/pushover`)
 
 Get your COPR API credentials from [copr.fedorainfracloud.org](https://copr.fedorainfracloud.org) → API → Token.
 
