@@ -9,7 +9,6 @@ use rustls::{ClientConfig, ClientConnection, StreamOwned};
 use serde::{Deserialize, Serialize};
 use webpki_roots::TLS_SERVER_ROOTS;
 
-
 #[derive(Debug, Deserialize, Serialize)]
 struct PushoverConfig {
     user: String,
