@@ -10,14 +10,14 @@
 
 [pushover]
 # Your Pushover user key (required)
-user = "uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+user = "__YOUR_USER_KEY__"
 
 # Your Pushover application token (required)
-token = "axxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+token = "__YOUR_APP_TOKEN__"
 
 # Default title for notifications (optional)
 # If not specified, will use hostname + "@"
-default_title = "Server Alert"
+#default_title = "Server Alert"
 
 [notification]
 # Default sound (optional)
@@ -30,14 +30,3 @@ default_title = "Server Alert"
 # If specified, notification will only be sent to this device
 # Use device name as shown in your Pushover dashboard
 # device = "iphone"
-
-# Examples of complete configurations:
-
-# High-priority server alerts:
-# [pushover]
-# user = "uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-# token = "axxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-# default_title = "PRODUCTION SERVER"
-#
-# [notification]
-# sound = "siren"
