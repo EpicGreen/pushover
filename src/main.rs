@@ -67,7 +67,11 @@ fn load_config() -> Result<Config, Box<dyn std::error::Error>> {
     } else if let Ok(content) = fs::read_to_string(local_config) {
         (local_config, content)
     } else {
-        return Err(format!("Config file not found. Tried {} and {}", system_config, local_config).into());
+        return Err(format!(
+            "Config file not found. Tried {} and {}",
+            system_config, local_config
+        )
+        .into());
     };
 
     let config: Config = toml::from_str(&config_content)
@@ -178,7 +182,10 @@ fn send_notification_rustls(
          User-Agent: pushover-rust/1.0\r\n\
          \r\n\
          {}",
-        path, host, form_data.len(), form_data
+        path,
+        host,
+        form_data.len(),
+        form_data
     );
 
     // Send request
@@ -211,13 +218,12 @@ fn main() {
     };
 
     // Determine default title
-    let default_title = config
-        .pushover
-        .default_title
-        .clone()
-        .unwrap_or_else(|| {
-            format!("{} @", env::var("HOSTNAME").unwrap_or_else(|_| "localhost".to_string()))
-        });
+    let default_title = config.pushover.default_title.clone().unwrap_or_else(|| {
+        format!(
+            "{} @",
+            env::var("HOSTNAME").unwrap_or_else(|_| "localhost".to_string())
+        )
+    });
 
     let mut title = default_title;
     let mut message = String::new();
