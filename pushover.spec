@@ -1,5 +1,5 @@
 Name:           pushover
-Version:        0.1.2
+Version:        0.1.3
 Release:        1%{?dist}
 Summary:        A secure command-line tool for sending Pushover notifications
 

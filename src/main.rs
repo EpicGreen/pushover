@@ -7,6 +7,8 @@ use std::sync::Arc;
 
 use rustls::{ClientConfig, ClientConnection, StreamOwned};
 use serde::{Deserialize, Serialize};
+use webpki_roots::TLS_SERVER_ROOTS;
+
 
 #[derive(Debug, Deserialize, Serialize)]
 struct PushoverConfig {
@@ -143,7 +145,7 @@ fn send_notification_rustls(
 
     // Create TLS config
     let mut root_store = rustls::RootCertStore::empty();
-    root_store.add_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
+    root_store.add_trust_anchors(TLS_SERVER_ROOTS.iter().map(|ta| {
         rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
             ta.subject,
             ta.spki,
@@ -187,10 +189,10 @@ fn send_notification_rustls(
 
     // Parse response to check for errors
     let response_str = String::from_utf8_lossy(&response);
-    if let Some(status_line) = response_str.lines().next()
-        && !status_line.contains("200")
-    {
-        return Err(format!("HTTP request failed: {}", status_line).into());
+    if let Some(status_line) = response_str.lines().next() {
+        if !status_line.contains("200") {
+            return Err(format!("HTTP request failed: {}", status_line).into());
+        }
     }
 
     Ok(())
