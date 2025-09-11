@@ -7,7 +7,6 @@ use std::sync::Arc;
 
 use rustls::{ClientConfig, ClientConnection, StreamOwned};
 use serde::{Deserialize, Serialize};
-use webpki_roots;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct PushoverConfig {
@@ -17,7 +16,7 @@ struct PushoverConfig {
     default_title: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Default)]
 struct NotificationConfig {
     #[serde(default)]
     sound: Option<String>,
@@ -33,15 +32,6 @@ struct Config {
 }
 
 const PUSHOVER_API_URL: &str = "https://api.pushover.net/1/messages.json";
-
-impl Default for NotificationConfig {
-    fn default() -> Self {
-        Self {
-            sound: None,
-            device: None,
-        }
-    }
-}
 
 fn usage() {
     let program_name = env::args().next().unwrap_or_else(|| "pushover".to_string());
@@ -197,10 +187,10 @@ fn send_notification_rustls(
 
     // Parse response to check for errors
     let response_str = String::from_utf8_lossy(&response);
-    if let Some(status_line) = response_str.lines().next() {
-        if !status_line.contains("200") {
-            return Err(format!("HTTP request failed: {}", status_line).into());
-        }
+    if let Some(status_line) = response_str.lines().next()
+        && !status_line.contains("200")
+    {
+        return Err(format!("HTTP request failed: {}", status_line).into());
     }
 
     Ok(())
@@ -257,7 +247,7 @@ fn main() {
                     usage();
                 }
                 match args[i + 1].parse::<i8>() {
-                    Ok(p) if p >= -2 && p <= 2 => priority = p,
+                    Ok(p) if (-2..=2).contains(&p) => priority = p,
                     Ok(_) => {
                         eprintln!("Priority must be between -2 and 2.");
                         usage();
