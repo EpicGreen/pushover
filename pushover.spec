@@ -1,16 +1,21 @@
+%global commit %{?commitish}%{!?commitish:HEAD}
+%global shortcommit %(c=%{commit}; echo ${c:0:7})
+%global commit_date %(date +%%Y%%m%%d)
+
 Name:           pushover
 Version:        0.1.3
-Release:        1%{?dist}
+Release:        %{commit_date}.git%{shortcommit}%{?dist}
 Summary:        A secure command-line tool for sending Pushover notifications
 
 License:        AGPL-3.0-or-later
 URL:            https://github.com/epicgreen/pushover
-Source0:        https://github.com/epicgreen/pushover/archive/v%{version}/%{name}-%{version}.tar.gz
+Source0:        https://github.com/epicgreen/pushover/archive/%{commit}/%{name}-%{commit}.tar.gz
 
 BuildRequires:  rust >= 1.70
 BuildRequires:  cargo
 BuildRequires:  gcc
 BuildRequires:  openssl-devel
+BuildRequires:  git
 
 Requires:       glibc
 
@@ -27,7 +32,7 @@ using rustls, TOML configuration, and support for all Pushover notification
 options including priorities, sounds, and device targeting.
 
 %prep
-%autosetup
+%autosetup -n %{name}-%{commit}
 
 %build
 # Set up cargo home in build directory
@@ -60,8 +65,8 @@ install -m 644 CHANGELOG.md %{buildroot}%{_docdir}/%{name}/
 %{_datadir}/bash-completion/completions/%{name}
 
 %changelog
-* Wed Sep 3 2025 Ante de Baas <packages@debaas.net> - 0.1.1-1
-- Initial release
+* Wed Sep 3 2025 Ante de Baas <packages@debaas.net> - 0.1.3-20250903.git%{shortcommit}
+- Git snapshot build from commit %{commit}
 - Pure Rust HTTPS implementation using rustls
 - TOML configuration system
 - Command-line priority control (-p flag)
