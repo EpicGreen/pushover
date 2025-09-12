@@ -34,16 +34,14 @@ options including priorities, sounds, and device targeting.
 %prep
 %setup -q -c
 mv %{name}-* %{name}-%{version}
-cd %{name}-%{version}
 
 %build
-# Set up cargo home in build directory
+cd %{name}-%{version}
 export CARGO_HOME=$PWD/.cargo
-# Build with verbose output and offline mode disabled
 cargo build --release --verbose
 
 %install
-# Install binary
+cd %{name}-%{version}
 install -D -m 755 target/release/%{name} %{buildroot}%{_bindir}/%{name}
 
 # Install configuration directory and example config
