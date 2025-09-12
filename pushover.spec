@@ -4,7 +4,7 @@
 
 Name:           pushover
 Version:        0.1.3
-Release:        %{commit_date}.git%{shortcommit}%{?dist}
+Release:        %{commit_date}%{shortcommit}%{?dist}
 Summary:        A secure command-line tool for sending Pushover notifications
 
 License:        AGPL-3.0-or-later
@@ -32,7 +32,7 @@ using rustls, TOML configuration, and support for all Pushover notification
 options including priorities, sounds, and device targeting.
 
 %prep
-%autosetup -n %{name}-%{commit}
+%autosetup
 
 %build
 # Set up cargo home in build directory
@@ -65,8 +65,7 @@ install -m 644 CHANGELOG.md %{buildroot}%{_docdir}/%{name}/
 %{_datadir}/bash-completion/completions/%{name}
 
 %changelog
-* Wed Sep 3 2025 Ante de Baas <packages@debaas.net> - 0.1.3-20250903.git%{shortcommit}
-- Git snapshot build from commit %{commit}
+* Wed Sep 3 2025 Ante de Baas <packages@debaas.net> - 0.1.3
 - Pure Rust HTTPS implementation using rustls
 - TOML configuration system
 - Command-line priority control (-p flag)
