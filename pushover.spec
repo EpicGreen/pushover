@@ -32,7 +32,9 @@ using rustls, TOML configuration, and support for all Pushover notification
 options including priorities, sounds, and device targeting.
 
 %prep
-%autosetup
+%setup -q -c
+mv %{name}-* %{name}-%{version}
+cd %{name}-%{version}
 
 %build
 # Set up cargo home in build directory
