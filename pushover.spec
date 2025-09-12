@@ -51,13 +51,17 @@ install -D -m 644 etc/%{name}/config.toml %{buildroot}%{_sysconfdir}/%{name}/con
 # Install bash completion
 install -D -m 644 etc/bash-completion/%{name} %{buildroot}%{_datadir}/bash-completion/completions/%{name}
 
+# Install license
+install -d %{buildroot}%{_licensedir}/%{name}
+install -m 644 LICENSE %{buildroot}%{_licensedir}/%{name}/LICENSE
+
 # Install documentation
 install -d %{buildroot}%{_docdir}/%{name}
 install -m 644 README.md %{buildroot}%{_docdir}/%{name}/
 install -m 644 CHANGELOG.md %{buildroot}%{_docdir}/%{name}/
 
 %files
-%license LICENSE
+%license %{_licensedir}/%{name}/LICENSE
 %doc %{_docdir}/%{name}/README.md
 %doc %{_docdir}/%{name}/CHANGELOG.md
 %{_bindir}/%{name}
