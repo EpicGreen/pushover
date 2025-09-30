@@ -1,36 +1,13 @@
 use std::env;
-use std::fs;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::process;
 use std::sync::Arc;
 
 use rustls::{ClientConfig, ClientConnection, StreamOwned};
-use serde::{Deserialize, Serialize};
 use webpki_roots::TLS_SERVER_ROOTS;
 
-#[derive(Debug, Deserialize, Serialize)]
-struct PushoverConfig {
-    user: String,
-    token: String,
-    #[serde(default)]
-    default_title: Option<String>,
-}
-
-#[derive(Debug, Deserialize, Serialize, Default)]
-struct NotificationConfig {
-    #[serde(default)]
-    sound: Option<String>,
-    #[serde(default)]
-    device: Option<String>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct Config {
-    pushover: PushoverConfig,
-    #[serde(default)]
-    notification: Option<NotificationConfig>,
-}
+use pushover::{load_config, parse_url, url_encode, Config};
 
 const PUSHOVER_API_URL: &str = "https://api.pushover.net/1/messages.json";
 
@@ -40,6 +17,7 @@ fn usage() {
     eprintln!("  -t <title>      Title of the notification");
     eprintln!("  -m <message>    Message of the notification");
     eprintln!("  -p <priority>   Priority (-2 to 2, default: 0)");
+    eprintln!("  --app-token <token>  Override app token from config");
     eprintln!("  -h, --help      Show this help message");
     eprintln!();
     eprintln!("Configuration:");
@@ -48,78 +26,19 @@ fn usage() {
     process::exit(1);
 }
 
-fn load_config() -> Result<Config, Box<dyn std::error::Error>> {
-    // Try system config first, then fallback to local config for development
-    let system_config = "/etc/pushover/config.toml";
-    let local_config = "etc/pushover/config.toml";
-
-    let (config_path, config_content) = if let Ok(content) = fs::read_to_string(system_config) {
-        (system_config, content)
-    } else if let Ok(content) = fs::read_to_string(local_config) {
-        (local_config, content)
-    } else {
-        return Err(format!(
-            "Config file not found. Tried {} and {}",
-            system_config, local_config
-        )
-        .into());
-    };
-
-    let config: Config = toml::from_str(&config_content)
-        .map_err(|e| format!("Invalid TOML in config file {}: {}", config_path, e))?;
-
-    Ok(config)
-}
-
-fn url_encode(s: &str) -> String {
-    s.chars()
-        .map(|c| match c {
-            'A'..='Z' | 'a'..='z' | '0'..='9' | '-' | '_' | '.' | '~' => c.to_string(),
-            ' ' => "+".to_string(),
-            _ => {
-                let bytes = c.to_string().into_bytes();
-                bytes.iter().map(|b| format!("%{:02X}", b)).collect()
-            }
-        })
-        .collect()
-}
-
-fn parse_url(url: &str) -> Result<(String, u16, String), Box<dyn std::error::Error>> {
-    if !url.starts_with("https://") {
-        return Err("Only HTTPS URLs are supported".into());
-    }
-
-    let url_without_scheme = &url[8..]; // Remove "https://"
-    let parts: Vec<&str> = url_without_scheme.splitn(2, '/').collect();
-
-    let host_port = parts[0];
-    let path = if parts.len() > 1 {
-        format!("/{}", parts[1])
-    } else {
-        "/".to_string()
-    };
-
-    let (host, port) = if host_port.contains(':') {
-        let host_port_parts: Vec<&str> = host_port.splitn(2, ':').collect();
-        (host_port_parts[0].to_string(), host_port_parts[1].parse()?)
-    } else {
-        (host_port.to_string(), 443)
-    };
-
-    Ok((host, port, path))
-}
-
 fn send_notification_rustls(
     config: &Config,
     title: &str,
     message: &str,
     priority: i8,
+    app_token_override: Option<&str>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let (host, port, path) = parse_url(PUSHOVER_API_URL)?;
 
     // Build form data
+    let token = app_token_override.unwrap_or(&config.pushover.token);
     let mut form_parts = vec![
-        format!("token={}", url_encode(&config.pushover.token)),
+        format!("token={}", url_encode(token)),
         format!("user={}", url_encode(&config.pushover.user)),
         format!("title={}", url_encode(title)),
         format!("message={}", url_encode(message)),
@@ -219,6 +138,7 @@ fn main() {
     let mut title = default_title;
     let mut message = String::new();
     let mut priority: i8 = 0;
+    let mut app_token_override: Option<String> = None;
 
     // Parse command line arguments
     let args: Vec<String> = env::args().collect();
@@ -260,6 +180,14 @@ fn main() {
                 };
                 i += 2;
             }
+            "--app-token" => {
+                if i + 1 >= args.len() {
+                    eprintln!("Option --app-token requires an argument.");
+                    usage();
+                }
+                app_token_override = Some(args[i + 1].clone());
+                i += 2;
+            }
             "-h" | "--help" => {
                 usage();
             }
@@ -281,7 +209,13 @@ fn main() {
     }
 
     // Send the notification
-    match send_notification_rustls(&config, &title, &message, priority) {
+    match send_notification_rustls(
+        &config,
+        &title,
+        &message,
+        priority,
+        app_token_override.as_deref(),
+    ) {
         Ok(()) => {
             // Success - silent like the original script
         }

@@ -3,7 +3,7 @@
 %global commit_date %(date +%%Y%%m%%d)
 
 Name:           pushover
-Version:        0.1.3
+Version:        0.2.0
 Release:        %{commit_date}%{shortcommit}%{?dist}
 Summary:        A secure command-line tool for sending Pushover notifications
 
@@ -69,6 +69,10 @@ install -m 644 CHANGELOG.md %{buildroot}%{_docdir}/%{name}/
 %{_datadir}/bash-completion/completions/%{name}
 
 %changelog
+* Wed Oct 2 2024 Ante de Baas <packages@debaas.net> - 0.2.0
+- Add tests
+- Allow for app_token override via commandline
+
 * Wed Sep 3 2025 Ante de Baas <packages@debaas.net> - 0.1.3
 - Pure Rust HTTPS implementation using rustls
 - TOML configuration system

@@ -104,6 +104,7 @@ pushover -t "Title" -m "Your message here"
 - `-t <title>`: Notification title
 - `-m <message>`: Message content (required)
 - `-p <priority>`: Priority (-2 to 2, default: 0)
+- `--app-token <token>`: Override app token from config file
 - `-h, --help`: Show help information
 
 ### Examples
@@ -123,6 +124,23 @@ pushover -t "Info" -m "Backup completed" -p -1
 
 # Quick test
 pushover -t "Test" -m "Hello from Rust!"
+
+# Using a different app token
+pushover -t "Alert" -m "Testing with different app" --app-token "your-alternate-token-here"
+```
+
+### App Token Override
+
+The `--app-token` option allows you to override the app token configured in your config file. This is useful when:
+
+- Testing with different Pushover applications
+- Using multiple applications for different notification types
+- Running notifications from scripts that need different app contexts
+- Temporarily using a different app without modifying the config file
+
+```bash
+# Use a different app token for this notification only
+pushover -t "Deploy Alert" -m "Production deployment started" --app-token "a1b2c3d4e5f6g7h8i9j0"
 ```
 
 ## Configuration Options
@@ -264,13 +282,57 @@ cargo build --release
 
 ### Testing
 
+The project includes comprehensive test coverage with multiple test types:
+
 ```bash
-# Build and test
+# Run all tests
 cargo test
 
-# Check with test config (requires config file setup)
-cargo run -- -t "Test" -m "Test"
+# Run specific test categories
+cargo test --lib                    # Library unit tests
+cargo test --test config_tests      # Configuration parsing tests
+cargo test --test integration_tests # Command-line integration tests
+cargo test --test unit_tests        # Utility function unit tests
+
+# Run tests with output
+cargo test -- --nocapture
+
+# Run a specific test
+cargo test test_url_encode
 ```
+
+#### Test Categories
+
+**Unit Tests** (`cargo test --lib` and `cargo test --test unit_tests`):
+- URL encoding and parsing functions
+- Configuration structure validation
+- TOML parsing and serialization
+- Priority validation logic
+- Token override functionality
+
+**Configuration Tests** (`cargo test --test config_tests`):
+- Valid and invalid TOML configurations
+- Missing required fields handling
+- Unicode and special character support
+- Comments and partial configurations
+
+**Integration Tests** (`cargo test --test integration_tests`):
+- Command-line argument parsing
+- Help message display
+- Error handling for invalid arguments
+- End-to-end workflow validation (with network mocking)
+
+#### Test Development
+
+```bash
+# Check test coverage areas
+cargo test --verbose
+
+# Test with development config
+cargo run -- -t "Test" -m "Test message"
+```
+
+**Note**: Integration tests work with existing system configuration files and expect network errors when using test credentials, which validates the complete pipeline without requiring real Pushover API access.
 
 ### Contributing
 
