@@ -1,15 +1,11 @@
-%global commit %{?commitish}%{!?commitish:HEAD}
-%global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commit_date %(date +%%Y%%m%%d)
-
 Name:           pushover
-Version:        0.2.0
-Release:        %{commit_date}%{shortcommit}%{?dist}
+Version:        0.2.1
+Release:        1%{?dist}
 Summary:        A secure command-line tool for sending Pushover notifications
 
 License:        AGPL-3.0-or-later
-URL:            https://github.com/epicgreen/pushover
-Source0:        https://github.com/epicgreen/pushover/archive/%{commit}/%{name}-%{commit}.tar.gz
+URL:            https://github.com/epicgreen/%{name}
+Source0:        https://github.com/epicgreen/%{name}/archive/refs/tags/v%{version}.tar.gz
 
 BuildRequires:  rust >= 1.70
 BuildRequires:  cargo
@@ -33,7 +29,6 @@ options including priorities, sounds, and device targeting.
 
 %prep
 %setup -q -c
-mv %{name}-* %{name}-%{version}
 
 %build
 cd %{name}-%{version}
